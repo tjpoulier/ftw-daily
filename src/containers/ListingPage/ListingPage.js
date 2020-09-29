@@ -59,6 +59,10 @@ import SectionRulesMaybe from './SectionRulesMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
 import css from './ListingPage.css';
 
+import { storeData } from '../CheckoutPage/CheckoutPageSessionHelpers';
+// This storage key is used in sessionStorage and it needs to be same as on CheckoutPage
+const STORAGE_KEY = 'CheckoutPage';
+
 const MIN_LENGTH_FOR_LONG_WORDS_IN_TITLE = 16;
 
 const { UUID } = sdkTypes;
@@ -118,6 +122,21 @@ export class ListingPageComponent extends Component {
       },
       confirmPaymentError: null,
     };
+
+    if (!this.props.currentUser) {
+      // Save information about booking to sessionStorage so that we can redirect
+      // user directly to CheckoutPage after authentication with idp (e.g. Facebook)
+      storeData(
+        bookingData,
+        {
+          bookingStart: bookingDates.startDate,
+          bookingEnd: bookingDates.endDate,
+        },
+        listing,
+        null,
+        STORAGE_KEY
+      );
+    }
 
     const routes = routeConfiguration();
     // Customize checkout page state with current listing and selected bookingDates
