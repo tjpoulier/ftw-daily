@@ -59,10 +59,6 @@ import SectionRulesMaybe from './SectionRulesMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
 import css from './ListingPage.css';
 
-import { storeData } from '../CheckoutPage/CheckoutPageSessionHelpers';
-// This storage key is used in sessionStorage and it needs to be same as on CheckoutPage
-const STORAGE_KEY = 'CheckoutPage';
-
 const MIN_LENGTH_FOR_LONG_WORDS_IN_TITLE = 16;
 
 const { UUID } = sdkTypes;
@@ -123,25 +119,13 @@ export class ListingPageComponent extends Component {
       confirmPaymentError: null,
     };
 
-    if (!this.props.currentUser) {
-      // Save information about booking to sessionStorage so that we can redirect
-      // user directly to CheckoutPage after authentication with idp (e.g. Facebook)
-      storeData(
-        bookingData,
-        {
-          bookingStart: bookingDates.startDate,
-          bookingEnd: bookingDates.endDate,
-        },
-        listing,
-        null,
-        STORAGE_KEY
-      );
-    }
+    const saveToSessionStorage = !this.props.currentUser;
 
     const routes = routeConfiguration();
     // Customize checkout page state with current listing and selected bookingDates
     const { setInitialValues } = findRouteByRouteName('CheckoutPage', routes);
-    callSetInitialValues(setInitialValues, initialValues);
+
+    callSetInitialValues(setInitialValues, initialValues, saveToSessionStorage);
 
     // Clear previous Stripe errors from store if there is any
     onInitializeCardPaymentData();
@@ -618,7 +602,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
-  callSetInitialValues: (setInitialValues, values) => dispatch(setInitialValues(values)),
+  callSetInitialValues: (setInitialValues, values, saveToSessionStorage) =>
+    dispatch(setInitialValues(values, saveToSessionStorage)),
   onFetchTransactionLineItems: (bookingData, listingId, isOwnListing) =>
     dispatch(fetchTransactionLineItems(bookingData, listingId, isOwnListing)),
   onSendEnquiry: (listingId, message) => dispatch(sendEnquiry(listingId, message)),
