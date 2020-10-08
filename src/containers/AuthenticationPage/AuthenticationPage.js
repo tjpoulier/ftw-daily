@@ -202,7 +202,9 @@ export class AuthenticationPageComponent extends Component {
       }
     };
 
-    const idp = this.state.authInfo ? this.state.authInfo.idpId : null;
+    const idp = this.state.authInfo
+      ? this.state.authInfo.idpId.replace(/^./, str => str.toUpperCase())
+      : null;
 
     // showSocialLoginsForTests makes sure that snapshot shows a correct condition
     // if that prop is not given, show social logins if Facebook id set in env variables
@@ -210,8 +212,20 @@ export class AuthenticationPageComponent extends Component {
       ? showSocialLoginsForTests
       : !!config.facebookAppId;
 
+    const facebookButtonText = isLogin ? (
+      <FormattedMessage id="AuthenticationPage.loginWithFacebook" />
+    ) : (
+      <FormattedMessage id="AuthenticationPage.signupWithFacebook" />
+    );
+
     const socialLoginButtonsMaybe = showSocialLogins ? (
       <div className={css.idpButtons}>
+        <div className={css.socialButtonsOr}>
+          <span className={css.socialButtonsOrText}>
+            <FormattedMessage id="AuthenticationPage.or" />
+          </span>
+        </div>
+
         <SocialLoginButton onClick={() => authWithFacebook()}>
           <span className={css.buttonIcon}>
             <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
@@ -222,11 +236,8 @@ export class AuthenticationPageComponent extends Component {
               />
             </svg>
           </span>
-          <FormattedMessage id="AuthenticationPage.loginWithFacebook" />
+          {facebookButtonText}
         </SocialLoginButton>
-        <center>
-          <FormattedMessage id="AuthenticationPage.or" />
-        </center>
       </div>
     ) : null;
 
@@ -252,7 +263,6 @@ export class AuthenticationPageComponent extends Component {
       <div className={css.content}>
         <LinkTabNavHorizontal className={css.tabs} tabs={tabs} />
         {loginOrSignupError}
-        {socialLoginButtonsMaybe}
 
         {isLogin ? (
           <LoginForm className={css.form} onSubmit={submitLogin} inProgress={authInProgress} />
@@ -264,6 +274,8 @@ export class AuthenticationPageComponent extends Component {
             onOpenTermsOfService={() => this.setState({ tosModalOpen: true })}
           />
         )}
+
+        {socialLoginButtonsMaybe}
       </div>
     );
 
