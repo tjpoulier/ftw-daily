@@ -79,7 +79,6 @@ export class AuthenticationPageComponent extends Component {
       sendVerificationEmailError,
       onResendVerificationEmail,
       onManageDisableScrolling,
-      showSocialLoginsForTests,
     } = this.props;
 
     const isConfirm = tab === 'confirm';
@@ -206,11 +205,7 @@ export class AuthenticationPageComponent extends Component {
       ? this.state.authInfo.idpId.replace(/^./, str => str.toUpperCase())
       : null;
 
-    // showSocialLoginsForTests makes sure that snapshot shows a correct condition
-    // if that prop is not given, show social logins if Facebook id set in env variables
-    const showSocialLogins = showSocialLoginsForTests
-      ? showSocialLoginsForTests
-      : !!config.facebookAppId;
+    const showSocialLogins = !!process.env.REACT_APP_FACEBOOK_APP_ID;
 
     const facebookButtonText = isLogin ? (
       <FormattedMessage id="AuthenticationPage.loginWithFacebook" />
@@ -416,9 +411,6 @@ AuthenticationPageComponent.propTypes = {
   sendVerificationEmailError: propTypes.error,
   onResendVerificationEmail: func.isRequired,
   onManageDisableScrolling: func.isRequired,
-
-  // Prop used in tests
-  showSocialLoginsForTests: bool,
 
   // from withRouter
   location: shape({ state: object }).isRequired,
